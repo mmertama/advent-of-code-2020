@@ -132,7 +132,7 @@ def navigate_thru_trees(m_x, m_y, map_pattern):
         x += m_x
         y += m_y
 
-    print("Tobogan encountered", trees, "trees")
+    # print("Tobogan encountered", trees, "trees")
     return trees
 
 
@@ -253,7 +253,7 @@ def check_passports_loose(data):
     print("Valid passports", valids)
 
 
-#####
+## day 5
 
 example5 = '''FBFBBFFRLR
 BFFFBBFRRR
@@ -288,6 +288,59 @@ def find_seat(data):
         if s not in occupied_seats:
             print(s, "missing")
 
+## day 6
+
+
+example6 = '''abc
+
+a
+b
+c
+
+ab
+ac
+
+a
+a
+a
+a
+
+b'''
+
+
+def check_custom_declaration_forms_any(data):
+    records = []
+    current_record = set()
+    for line in data:
+        if len(line) == 0:
+            records.append(current_record)
+            current_record = set()
+        else:
+            for v in line:
+                current_record.add(v)
+    records.append(current_record)
+    value = functools.reduce(lambda acc, s: acc + len(s), records, 0)
+    print("records", value)
+
+
+def check_custom_declaration_forms_all(data):
+    records = []
+    current_record = None
+    for line in data:
+        if len(line) == 0:
+            records.append(current_record)
+            current_record = None
+        elif current_record is None:
+            current_record = set([x for x in line])
+        else:
+            current_record.intersection_update(line)
+
+    records.append(current_record)
+    value = functools.reduce(lambda acc, s: acc + len(s), records, 0)
+    print("records", value)
+
+#######
+
 
 if __name__ == "__main__":
     # find_two_factors(read_local_lines(example1))
@@ -310,3 +363,8 @@ if __name__ == "__main__":
     check_passports_strict(read_remote_lines('data/input4.txt'))
     # find_seat(read_local_lines(example5))
     find_seat(read_remote_lines('data/input5.txt'))
+    # check_custom_declaration_forms_any(read_local_lines(example6))
+    check_custom_declaration_forms_any(read_remote_lines('data/input6.txt'))
+    # check_custom_declaration_forms_all(read_local_lines(example6))
+    check_custom_declaration_forms_all(read_remote_lines('data/input6.txt'))
+
