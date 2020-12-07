@@ -3,6 +3,7 @@ import day2
 import day3
 import day4
 import day5
+import day6
 
 
 def read_local_lines(str):
@@ -38,3 +39,7 @@ if __name__ == "__main__":
     day4.check_passports_strict(read_remote_lines('data/input4.txt'))
     #day5.find_seat(read_local_lines(day5.example))
     day5.find_seat(read_remote_lines('data/input5.txt'))
+    #day6.check_custom_declaration_forms_any(read_local_lines(day6.example))
+    day6.check_custom_declaration_forms_any(read_remote_lines('data/input6.txt'))
+    #day6.check_custom_declaration_forms_all(read_local_lines(day6.example))
+    day6.check_custom_declaration_forms_all(read_remote_lines('data/input6.txt'))
