@@ -4,6 +4,7 @@ import day3
 import day4
 import day5
 import day6
+import day7
 
 
 def read_local_lines(str):
@@ -19,6 +20,7 @@ def read_remote_lines(fn):
 
 
 if __name__ == "__main__":
+
     #day1.find_two_factors(read_local_lines(day1.example))
     day1.find_two_factors(read_remote_lines('data/input.txt'))
     #day1.find_three_factors(read_local_lines(day1.example))
@@ -43,3 +45,10 @@ if __name__ == "__main__":
     day6.check_custom_declaration_forms_any(read_remote_lines('data/input6.txt'))
     #day6.check_custom_declaration_forms_all(read_local_lines(day6.example))
     day6.check_custom_declaration_forms_all(read_remote_lines('data/input6.txt'))
+
+    #day7.luggage_processor(read_local_lines(day7.example), 'shiny gold')
+    day7.luggage_processor(read_remote_lines('data/input7.txt'), 'shiny gold')
+    #day7.luggage_processor_content(read_local_lines(day7.example), 'shiny gold')
+    #day7.luggage_processor_content(read_local_lines(day7.example2), 'shiny gold')
+    day7.luggage_processor_content(read_remote_lines('data/input7.txt'), 'shiny gold')
+
