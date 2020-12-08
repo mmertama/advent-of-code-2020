@@ -5,6 +5,7 @@ import day4
 import day5
 import day6
 import day7
+import day8
 
 
 def read_local_lines(str):
@@ -45,10 +46,12 @@ if __name__ == "__main__":
     day6.check_custom_declaration_forms_any(read_remote_lines('data/input6.txt'))
     #day6.check_custom_declaration_forms_all(read_local_lines(day6.example))
     day6.check_custom_declaration_forms_all(read_remote_lines('data/input6.txt'))
-
     #day7.luggage_processor(read_local_lines(day7.example), 'shiny gold')
     day7.luggage_processor(read_remote_lines('data/input7.txt'), 'shiny gold')
     #day7.luggage_processor_content(read_local_lines(day7.example), 'shiny gold')
     #day7.luggage_processor_content(read_local_lines(day7.example2), 'shiny gold')
     day7.luggage_processor_content(read_remote_lines('data/input7.txt'), 'shiny gold')
-
+    #day8.detect_loop(read_local_lines(day8.example))
+    day8.detect_loop(read_remote_lines('data/input8.txt'))
+    #day8.detect_invalid_instruction(read_local_lines(day8.example))
+    day8.detect_invalid_instruction(read_remote_lines('data/input8.txt'))
