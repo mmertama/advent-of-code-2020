@@ -6,6 +6,7 @@ import day5
 import day6
 import day7
 import day8
+import day9
 
 
 def read_local_lines(str):
@@ -55,3 +56,7 @@ if __name__ == "__main__":
     day8.detect_loop(read_remote_lines('data/input8.txt'))
     #day8.detect_invalid_instruction(read_local_lines(day8.example))
     day8.detect_invalid_instruction(read_remote_lines('data/input8.txt'))
+    #day9.find_mismatch(5, read_local_lines(day9.example1))
+    day9.find_mismatch(25, read_remote_lines('data/input9.txt'))
+    #day9.find_contiguous_range(5, read_local_lines(day9.example1))
+    day9.find_contiguous_range(25, read_remote_lines('data/input9.txt'))
