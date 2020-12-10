@@ -7,6 +7,7 @@ import day6
 import day7
 import day8
 import day9
+import day10
 
 
 def read_local_lines(str):
@@ -22,7 +23,7 @@ def read_remote_lines(fn):
 
 
 if __name__ == "__main__":
-
+    '''
     #day1.find_two_factors(read_local_lines(day1.example))
     day1.find_two_factors(read_remote_lines('data/input.txt'))
     #day1.find_three_factors(read_local_lines(day1.example))
@@ -60,3 +61,11 @@ if __name__ == "__main__":
     day9.find_mismatch(25, read_remote_lines('data/input9.txt'))
     #day9.find_contiguous_range(5, read_local_lines(day9.example1))
     day9.find_contiguous_range(25, read_remote_lines('data/input9.txt'))
+    '''
+    #day10.find_jolts(read_local_lines(day10.example1))
+    #day10.find_jolts(read_local_lines(day10.example2))
+    day10.find_jolts(read_remote_lines('data/input10.txt'))
+
+    #day10.find_jolt_permutations(read_local_lines(day10.example1))
+    #day10.find_jolt_permutations(read_local_lines(day10.example2))
+    day10.find_jolt_permutations(read_remote_lines('data/input10.txt'))
