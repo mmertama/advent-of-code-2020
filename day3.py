@@ -29,9 +29,12 @@ def navigate_thru_trees(m_x, m_y, map_pattern):
         trees += is_tree(x, y)
         x += m_x
         y += m_y
-
-    print("Tobogan encountered", trees, "trees")
     return trees
+
+
+def navigate_thru_trees1(m_x, m_y, map_pattern):
+    trees = navigate_thru_trees(m_x, m_y, map_pattern)
+    print("Tobogan encountered", trees, "trees")
 
 
 def navigate_thru_trees2(map_pattern):
