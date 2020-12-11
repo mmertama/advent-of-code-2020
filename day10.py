@@ -1,4 +1,3 @@
-import functools
 
 example1= '''16
 10
