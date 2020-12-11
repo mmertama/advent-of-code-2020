@@ -8,6 +8,7 @@ import day7
 import day8
 import day9
 import day10
+import day11
 
 
 def read_local_lines(str):
@@ -24,7 +25,7 @@ def read_remote_lines(fn):
 
 if __name__ == "__main__":
     day = 0
-
+    #'''
     print("day " + str((day := day + 1)))
     #day1.find_two_factors(read_local_lines(day1.example))
     day1.find_two_factors(read_remote_lines('data/input.txt'))
@@ -87,3 +88,10 @@ if __name__ == "__main__":
     #day10.find_jolt_permutations(read_local_lines(day10.example1))
     #day10.find_jolt_permutations(read_local_lines(day10.example2))
     day10.find_jolt_permutations(read_remote_lines('data/input10.txt'))
+    #'''
+    print("day " + str((day := day + 1)))
+    #day11.seat_occupation_count(read_local_lines(day11.example))
+    day11.seat_occupation_count(read_remote_lines('data/input11.txt'))
+    #day11.seat_occupation_count_sight(read_local_lines(day11.example))
+    day11.seat_occupation_count_sight(read_remote_lines('data/input11.txt'))
+
