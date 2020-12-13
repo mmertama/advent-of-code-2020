@@ -55,14 +55,17 @@ def find_timestamp(data):
     r = range(0, len(ids_values))
     while True:
         delta = 0
+        ii = [0] * len(ids_values)
         for i in r:
             d = (t + ids_deltas[i]) % ids_values[i]
             if d > delta:
                 delta = d
+                break
+            ii[i] = d
         if delta == 0:
             print(t)
             return
-        #print(t, delta)
+        #print(t, delta, ii)
         t += max_val
 
 
