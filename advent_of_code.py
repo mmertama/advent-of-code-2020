@@ -10,7 +10,9 @@ import day9
 import day10
 import day11
 import day12
+import day13
 
+import time
 
 def read_example(str):
     return str.splitlines()
@@ -94,10 +96,25 @@ if __name__ == "__main__":
     day11.seat_occupation_count(read_input('data/input11.txt'))
     #day11.seat_occupation_count_sight(read_example(day11.example))
     day11.seat_occupation_count_sight(read_input('data/input11.txt'))
-    '''
+    
     print("day 12")
     #day12.navigation_distance(read_example(day12.example))
     day12.navigation_distance(read_input('data/input12.txt'))
     #day12.navigation_distance_waypoint(read_example(day12.example))
     day12.navigation_distance_waypoint(read_input('data/input12.txt'))
-
+    '''
+    print("day13")
+    #day13.find_bus(read_example(day13.example))
+    #day13.find_bus(read_input('data/input13.txt'))
+    tic = time.perf_counter()
+    #day13.find_timestamp_dummy(read_example(day13.example5))
+    toc = time.perf_counter()
+    print(f"timed: {toc - tic:0.4f} seconds")
+    tic = time.perf_counter()
+    day13.find_timestamp(read_example(day13.example))
+    toc = time.perf_counter()
+    print(f"timed: {toc - tic:0.4f} seconds")
+    tic = time.perf_counter()
+    day13.find_timestamp(read_input('data/input13.txt'))
+    toc = time.perf_counter()
+    print(f"timed: {toc - tic:0.4f} seconds")
