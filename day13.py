@@ -3,6 +3,9 @@ import functools
 example = '''939
 7,13,x,x,59,x,31,19'''
 
+example1 = '''0
+17,x,13,19'''
+
 example2 = '''0
 67,7,59,61'''
 
@@ -41,37 +44,30 @@ def find_timestamp_dummy(data):
             print(t)
             return
 
+example0 = '''0
+7,x,3,5'''
 
 def find_timestamp(data):
-    #ids = [0 if x == 'x' else int(x) for x in data[1].split(',')]
-    ids = [7, 13, 0, 0, 59, 0, 31, 19]
+    ids = [0 if x == 'x' else int(x) for x in data[1].split(',')]
+    #ids = [7, 13, 1, 1, 59, 1, 31, 19]
+    #ids = [2, 0, 3, 0, 5, 7]
     zipped = zip([x for x in ids if x > 0], [ids.index(x) for x in ids if x > 0])
-    id_values = sorted(zipped, reverse=True)
-    #ids_values =
-    #ids_values.sort(reverse=True)
-    #ids_deltas =
-    #ids_deltas.sort(key=ids_values.__getitem__, reverse=True)
-    #values = {v: v for v in ids if v != 0}
-
-    id_values.pop(0)
-    max_val = max(ids)
-    max_val_index = ids.index(max_val)
-    t = max_val - max_val_index
-    r = range(0, len(id_values))
+    id_values = sorted(zipped)
+    t = id_values[0][0] - id_values[0][1]
+    step = id_values[0][0]
+    to = 1
     while True:
-        #delta = 0
-        #ii = [0] * len(ids_values)
-        found = True
-        for i in id_values:
-            if (t + i[1]) % i[0] > 0:
-                found = False
-                break
-            #ii[i] = d
-        if found:
-            print(t)
-            return
-        #print(t, delta, ii)
-        t += max_val
+        if (t + id_values[to][1]) % id_values[to][0] == 0:
+            step = 1
+            for i in range(0, to + 1):
+                step *= id_values[i][0]
+            to += 1
+            #print(t, step, to)
+            if to == len(id_values):
+                print(t)
+                return
+            continue
+        t += step
 
 
 def find_timestamp_t(data):
