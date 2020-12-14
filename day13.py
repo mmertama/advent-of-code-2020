@@ -26,7 +26,7 @@ def find_bus(data):
 
     earliest = min(timetable, key=timetable.get)
     wait_time = timetable[earliest] - timestamp
-    print(earliest, timetable[earliest], wait_time, earliest * wait_time)
+    print("earliest:", earliest, "at:", timetable[earliest], "wait time:", wait_time, "wait:", earliest * wait_time)
 
 
 def find_timestamp_dummy(data):
@@ -44,33 +44,8 @@ def find_timestamp_dummy(data):
             print(t)
             return
 
-example0 = '''0
-7,x,3,5'''
 
-def find_timestamp(data):
-    ids = [0 if x == 'x' else int(x) for x in data[1].split(',')]
-    #ids = [7, 13, 1, 1, 59, 1, 31, 19]
-    #ids = [2, 0, 3, 0, 5, 7]
-    zipped = zip([x for x in ids if x > 0], [ids.index(x) for x in ids if x > 0])
-    id_values = sorted(zipped)
-    t = id_values[0][0] - id_values[0][1]
-    step = id_values[0][0]
-    to = 1
-    while True:
-        if (t + id_values[to][1]) % id_values[to][0] == 0:
-            step = 1
-            for i in range(0, to + 1):
-                step *= id_values[i][0]
-            to += 1
-            #print(t, step, to)
-            if to == len(id_values):
-                print(t)
-                return
-            continue
-        t += step
-
-
-def find_timestamp_t(data):
+def find_timestamp_dummy_but_much_faster(data):
     ids = [0 if x == 'x' else int(x) for x in data[1].split(',')]
     zipped = zip([x for x in ids if x > 0], [ids.index(x) for x in ids if x > 0])
     id_values = sorted(zipped, reverse=True)
@@ -89,6 +64,28 @@ def find_timestamp_t(data):
             print(t)
             return
         t += max_val
+
+
+def find_timestamp(data):
+    ids = [0 if x == 'x' else int(x) for x in data[1].split(',')]
+    zipped = zip([x for x in ids if x > 0], [ids.index(x) for x in ids if x > 0])
+    id_values = sorted(zipped)
+    t = id_values[0][0] - id_values[0][1]
+    step = id_values[0][0]
+    to = 1
+    while True:
+        if (t + id_values[to][1]) % id_values[to][0] == 0:
+            step = 1
+            for i in range(0, to + 1):
+                step *= id_values[i][0]
+            to += 1
+            if to == len(id_values):
+                print("timestamp", t)
+                return
+            continue
+        t += step
+
+
 
 
 

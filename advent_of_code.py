@@ -11,6 +11,7 @@ import day10
 import day11
 import day12
 import day13
+import day14
 
 import time
 
@@ -105,16 +106,23 @@ if __name__ == "__main__":
     '''
     print("day13")
     #day13.find_bus(read_example(day13.example))
-    #day13.find_bus(read_input('data/input13.txt'))
-    tic = time.perf_counter()
-    day13.find_timestamp(read_example(day13.example5))
-    toc = time.perf_counter()
-    print(f"timed: {toc - tic:0.4f} seconds", flush=True)
-    tic = time.perf_counter()
-    day13.find_timestamp_t(read_example(day13.example5))
-    toc = time.perf_counter()
-    print(f"timed: {toc - tic:0.4f} seconds", flush=True)
-    tic = time.perf_counter()
+    day13.find_bus(read_input('data/input13.txt'))
+    #tic = time.perf_counter()
+    #day13.find_timestamp(read_example(day13.example5))
+    #toc = time.perf_counter()
+    #print(f"timed: {toc - tic:0.4f} seconds", flush=True)
+    #tic = time.perf_counter()
+    #day13.find_timestamp_t(read_example(day13.example5))
+    #toc = time.perf_counter()
+    #print(f"timed: {toc - tic:0.4f} seconds", flush=True)
+    #tic = time.perf_counter()
     day13.find_timestamp(read_input('data/input13.txt'))
-    toc = time.perf_counter()
-    print(f"timed: {toc - tic:0.4f} seconds", flush=True)
+    #toc = time.perf_counter()
+    #print(f"timed: {toc - tic:0.4f} seconds", flush=True)
+
+    print("day14")
+    #day14.init_program(read_example(day14.example))
+    day14.init_program(read_input('data/input14.txt'))
+    #day14.init_program_2(read_example(day14.example2))
+    day14.init_program_2(read_input('data/input14.txt'))
+
