@@ -12,6 +12,7 @@ import day11
 import day12
 import day13
 import day14
+import day15
 
 import time
 
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     day12.navigation_distance(read_input('data/input12.txt'))
     #day12.navigation_distance_waypoint(read_example(day12.example))
     day12.navigation_distance_waypoint(read_input('data/input12.txt'))
-    '''
+    
     print("day13")
     #day13.find_bus(read_example(day13.example))
     day13.find_bus(read_input('data/input13.txt'))
@@ -112,7 +113,7 @@ if __name__ == "__main__":
     #toc = time.perf_counter()
     #print(f"timed: {toc - tic:0.4f} seconds", flush=True)
     #tic = time.perf_counter()
-    #day13.find_timestamp_t(read_example(day13.example5))
+    #day13.find_timestamp_dummy_but_much_faster(read_example(day13.example5))
     #toc = time.perf_counter()
     #print(f"timed: {toc - tic:0.4f} seconds", flush=True)
     #tic = time.perf_counter()
@@ -125,4 +126,9 @@ if __name__ == "__main__":
     day14.init_program(read_input('data/input14.txt'))
     #day14.init_program_2(read_example(day14.example2))
     day14.init_program_2(read_input('data/input14.txt'))
+    '''
+    print("day15")
+    day15.play_memory(day15.example1)
+    day15.play_memory(day15.data)
+
 
