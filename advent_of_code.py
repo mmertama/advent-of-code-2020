@@ -128,7 +128,11 @@ if __name__ == "__main__":
     day14.init_program_2(read_input('data/input14.txt'))
     '''
     print("day15")
-    day15.play_memory(day15.example1)
-    day15.play_memory(day15.data)
+    day15.play_memory(day15.example1, 2020)
+    day15.play_memory(day15.data, 2020)
+    tic = time.perf_counter()
+    day15.play_memory(day15.data, 30000000)
+    toc = time.perf_counter()
+    print(f"timed: {toc - tic:0.4f} seconds", flush=True)
 
 
