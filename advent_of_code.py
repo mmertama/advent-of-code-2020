@@ -14,6 +14,7 @@ import day13
 import day14
 import day15
 import day16
+import day17
 
 import time
 
@@ -136,7 +137,12 @@ if __name__ == "__main__":
     day15.play_memory(day15.data, 30000000)
     #toc = time.perf_counter()
     #print(f"timed: {toc - tic:0.4f} seconds", flush=True)
-    '''
+    
     #day16.ticket_errors_scan(read_example(day16.example1))
     day16.ticket_errors_scan(read_input('data/input16.txt'))
     day16.find_my_ticket_departure(read_input('data/input16.txt'))
+    '''
+    #day17.boot_cubes_3d(read_example(day17.example), 6)
+    day17.boot_cubes_3d(read_input('data/input17.txt'), 6)
+    #day17.boot_cubes_4d(read_example(day17.example), 6)
+    day17.boot_cubes_4d(read_input('data/input17.txt'), 6)
