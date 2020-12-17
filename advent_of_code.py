@@ -13,8 +13,10 @@ import day12
 import day13
 import day14
 import day15
+import day16
 
 import time
+
 
 def read_example(str):
     return str.splitlines()
@@ -126,13 +128,15 @@ if __name__ == "__main__":
     day14.init_program(read_input('data/input14.txt'))
     #day14.init_program_2(read_example(day14.example2))
     day14.init_program_2(read_input('data/input14.txt'))
-    '''
+
     print("day15")
-    day15.play_memory(day15.example1, 2020)
+    #day15.play_memory(day15.example1, 2020)
     day15.play_memory(day15.data, 2020)
-    tic = time.perf_counter()
+    #tic = time.perf_counter()
     day15.play_memory(day15.data, 30000000)
-    toc = time.perf_counter()
-    print(f"timed: {toc - tic:0.4f} seconds", flush=True)
-
-
+    #toc = time.perf_counter()
+    #print(f"timed: {toc - tic:0.4f} seconds", flush=True)
+    '''
+    #day16.ticket_errors_scan(read_example(day16.example1))
+    day16.ticket_errors_scan(read_input('data/input16.txt'))
+    day16.find_my_ticket_departure(read_input('data/input16.txt'))
