@@ -147,9 +147,12 @@ if __name__ == "__main__":
     day17.boot_cubes_3d(read_input('data/input17.txt'), 6)
     #day17.boot_cubes_4d(read_example(day17.example), 6)
     day17.boot_cubes_4d(read_input('data/input17.txt'), 6)
-    '''
+  
     #day18.calc(read_example(day18.example1))
     day18.calc(read_input('data/input18.txt'))
     #day18.calc2(read_example(day18.example1))
     day18.calc2(read_input('data/input18.txt'))
-    
+    '''
+    day17.boot_cubes_3d(read_example(day17.example), 6)
+    day17.boot_cubes(read_example(day17.example), 6)
+

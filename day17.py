@@ -40,6 +40,33 @@ def get_actives_w(cloud, xx, yy, zz, ww):
     return actives
 
 
+def at(item, coord):
+    if len(coord) == 1:
+        return item[coord[0]]
+    else:
+        return at(item[coord[0]], coord[1:])
+
+
+def get_actives_n(cloud, coords, pos=0, current_pos=[]):
+    actives = 0
+    if pos < len(coords) - 1:
+        for w in range(coords[pos] - 1, coords[pos] + 2):
+            if w not in cloud:
+                continue
+            actives += get_actives_n(cloud[w], coords, pos + 1, current_pos + [w])
+    else:
+        for x in range(coords[pos] - 1, coords[pos] + 2):
+            if x not in at(cloud, current_pos):
+                continue
+            is_same = False
+            for i in range(0, current_pos):
+                is_same = is_same or (current_pos[i] == coords[i])
+            if x != coords[-1] or not is_same:
+                if at(cloud, current_pos + [x]):
+                    actives += 1
+    return actives
+
+
 def get_cloud(grid):
     cloud = {}
     for z, plane in grid.items():
@@ -93,14 +120,14 @@ def get_cloud_w(hyper_grid):
                                         cloud[ww][zz][yy][xx + 1] = False
     return cloud
 
-'''
+
 def add_empty_n(cloud, coordinates, x):
     sub_space = cloud
     for p in coordinates:
         for r in range(p - 1, p + 2):
             if r not in sub_space:
                 sub_space[r] = {}
-        sub_space = cloud[r]
+        sub_space = sub_space[r]
     for xx in range(x - 1, x + 2):
         if (xx - 1) not in sub_space:
             sub_space[xx - 1] = False
@@ -108,28 +135,19 @@ def add_empty_n(cloud, coordinates, x):
             sub_space[xx + 1] = False
 
 
-def get_cloud_n(universe):
-    cloud = {}
-    root = universe
-    cloud_space = cloud
-    coordinate = []
-    while True:
-        for d, sub_space in root.items():
-            coordinate.append(d)
-            if d not in cloud_space:
-                cloud_space[d] = {}
-            if isinstance(sub_space, set):
-                for x in sub_space:
-                    cloud_space[d][x] = True
-                    add_empty_n(cloud, coordinate, x)
-            else:
-                if d not in cloud_space:
-                    cloud_space[d] = {}
-                root = sub_space
-                cloud_space = cloud_space[d]
-            coordinate.pop()
-    return cloud
-'''
+def get_cloud_n(universe, cloud, coordinate=[]):
+    for d, sub_space in universe.items():
+        if d not in cloud:
+            cloud[d] = {}
+        if isinstance(sub_space, set):
+            for x in sub_space:
+                cloud[d][x] = True
+                add_empty_n(cloud, coordinate + [d], x)
+        else:
+            if d not in cloud:
+                cloud[d] = {}
+            get_cloud_n(sub_space, cloud, coordinate + [d])
+
 
 def calc_next(grid):
     cloud = get_cloud(grid)
@@ -179,38 +197,36 @@ def calc_next_w(hyper_grid):
                                 hyper_grid[w][z][y] = set()
                             hyper_grid[w][z][y].add(x)
 
-'''
-def calc_next_n(universe):
-    cloud = get_cloud_n(universe)
-    root = universe
-    coordinates = []
-    while True:
-        for d, sub_space in root.items():
-            coordinates.append(d)
-            if isinstance(sub_space, hash):
-                root = sub_space
-            else:
-                is_active = sub_space
-                actives = get_actives_n(cloud, coordinates)
-                if is_active:
-                    if not (actives == 2 or actives == 3):
-                        root.remove(d)
-                    else:
-                        if actives == 3:
-                            if w not in hyper_grid:
-                                hyper_grid[w] = {}
-                            if z not in hyper_grid[w]:
-                                hyper_grid[w][z] = {}
-                            if y not in hyper_grid[w][z]:
-                                hyper_grid[w][z][y] = set()
-                            hyper_grid[w][z][y].add(x)
-            if len(hyper_grid[w][z][y]) == 0:
-                hyper_grid[w][z].pop(y)
-                if len(hyper_grid[w][z]) == 0:
-                    hyper_grid[w].pop(z)
-                    if len(hyper_grid[w]) == 0:
-                        hyper_grid.pop(w)
-'''
+
+def calc_next_n(universe, coordinates=[]):
+    cloud = {}
+    get_cloud_n(universe, cloud)
+    for d, sub_space in universe.items():
+        coordinates.append(d)
+        if isinstance(sub_space, dict):
+            calc_next_n(sub_space, coordinates + [d])
+        else:
+            is_active = sub_space
+            actives = get_actives_n(cloud, coordinates)
+            if is_active:
+                if not (actives == 2 or actives == 3):
+                    root.remove(d)
+                else:
+                    if actives == 3:
+                        if w not in hyper_grid:
+                            hyper_grid[w] = {}
+                        if z not in hyper_grid[w]:
+                            hyper_grid[w][z] = {}
+                        if y not in hyper_grid[w][z]:
+                            hyper_grid[w][z][y] = set()
+                        hyper_grid[w][z][y].add(x)
+        if len(hyper_grid[w][z][y]) == 0:
+            hyper_grid[w][z].pop(y)
+            if len(hyper_grid[w][z]) == 0:
+                hyper_grid[w].pop(z)
+                if len(hyper_grid[w]) == 0:
+                    hyper_grid.pop(w)
+
 
 def count_active(grid):
     actives = 0
@@ -244,7 +260,7 @@ def boot_cubes_3d(data, cycles):
         calc_next(grid)
     print("actives in grid:", count_active(grid))
 
-'''
+
 def boot_cubes(data, cycles):
     grid = {}
     plane = {}
@@ -257,9 +273,9 @@ def boot_cubes(data, cycles):
     grid[0] = plane
 
     for r in range(0, cycles):
-        calc_next_n(grid, 3)
+        calc_next_n(grid)
     print("actives in grid:", count_active(grid))
-'''
+
 
 def boot_cubes_4d(data, cycles):
     hyper_cube = {}
