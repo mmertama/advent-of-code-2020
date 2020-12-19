@@ -16,6 +16,7 @@ import day15
 import day16
 import day17
 import day18
+import day19
 
 import time
 
@@ -153,6 +154,10 @@ if __name__ == "__main__":
     #day18.calc2(read_example(day18.example1))
     day18.calc2(read_input('data/input18.txt'))
     '''
-    day17.boot_cubes_3d(read_example(day17.example), 6)
-    day17.boot_cubes(read_example(day17.example), 6)
+    #day17.boot_cubes_3d(read_example(day17.example), 6)
+    #day17.boot_cubes(read_example(day17.example), 6)
 
+    #day19.find_matches(read_example(day19.example))
+    day19.find_matches(read_input('data/input19.txt'))
+    #day19.find_matches(read_example(day19.example2), read_example(day19.update))
+    day19.find_matches(read_input('data/input19.txt'), read_example(day19.update))
