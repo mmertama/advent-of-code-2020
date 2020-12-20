@@ -15,7 +15,7 @@ def print_grid(grid):
                 minx = min(minx, min(lines))
                 maxx = max(maxx, max(lines))
     for z in range(minz, maxz + 1):
-        print(z)
+        print(z, minx, '-', maxx)
         for y in range(miny, maxy + 1):
             print((str(y).ljust(3)), end='')
             for x in range(minx, maxx + 1):
