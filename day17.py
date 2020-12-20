@@ -1,19 +1,16 @@
-
 example = '''.#.
 ..#
 ###'''
 
 
-def get_actives_n(cloud, coordinates, is_same=True):
+def get_actives(cloud, coordinates, is_same=True):
     actives = 0
     p = coordinates[0]
     if len(coordinates) > 1:
         for w in range(p - 1, p + 2):
             if w not in cloud:
                 continue
-            actives += get_actives_n(cloud[w],
-                                     coordinates[1:],
-                                     is_same and w == p)
+            actives += get_actives(cloud[w], coordinates[1:], is_same and w == p)
     else:
         for x in range(p - 1, p + 2):
             if x not in cloud:
@@ -24,7 +21,7 @@ def get_actives_n(cloud, coordinates, is_same=True):
     return actives
 
 
-def add_empty_n(cloud, coordinate, x):
+def add_empty(cloud, coordinate, x):
     if len(coordinate) == 0:
         for xx in range(x - 1, x + 2):
             if xx not in cloud:
@@ -34,19 +31,19 @@ def add_empty_n(cloud, coordinate, x):
         for r in range(p - 1, p + 2):
             if r not in cloud:
                 cloud[r] = {}
-            add_empty_n(cloud[r], coordinate[1:], x)
+            add_empty(cloud[r], coordinate[1:], x)
 
 
-def get_cloud_n(universe, cloud, sub_cloud, coordinate=[]):
+def get_cloud(universe, cloud, sub_cloud, coordinate=[]):
     for d, sub_space in universe.items():
         if d not in sub_cloud:
             sub_cloud[d] = {}
         if isinstance(sub_space, set):
             for x in sub_space:
                 sub_cloud[d][x] = True
-                add_empty_n(cloud, coordinate + [d], x)
+                add_empty(cloud, coordinate + [d], x)
         else:
-            get_cloud_n(sub_space, cloud, sub_cloud[d], coordinate + [d])
+            get_cloud(sub_space, cloud, sub_cloud[d], coordinate + [d])
 
 
 def make_iterator(cloud):
@@ -107,14 +104,14 @@ def add(universe, coordinate):
 
 def calc_next(universe, coordinates=[]):
     cloud = {}
-    get_cloud_n(universe, cloud, cloud)
+    get_cloud(universe, cloud, cloud)
     iterator = make_iterator(cloud)
     while True:
         value = iterate(iterator)
         if value is None:
             break
         coordinates, is_active = value
-        actives = get_actives_n(cloud, coordinates)
+        actives = get_actives(cloud, coordinates)
 
         if is_active:
             if not (actives == 2 or actives == 3):
@@ -122,14 +119,6 @@ def calc_next(universe, coordinates=[]):
         else:
             if actives == 3:
                 add(universe, coordinates)
-
-
-def count_active(grid):
-    actives = 0
-    for plane in grid.values():
-        for line in plane.values():
-            actives += len(line)
-    return actives
 
 
 def count_active(grid):
