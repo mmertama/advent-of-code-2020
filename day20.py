@@ -164,20 +164,22 @@ def match_all(images):
                 for r in ranges:
                     if borders_i[r[0]] == borders_j[r[1]]:
                         matches.append((current_i, current_j, r[0], r[1]))
-            if len(matches) < 1:
+            if len(matches) < 2:
                 current_tile_i['op'] += 1
                 if current_tile_i['op'] >= len(ops):
                     nonlocal deadlock_ops
+                    deadlock_ops[0] += 1
+                    for index in range(1, len(deadlock_ops)):
+                        if deadlock_ops[index - 1] < len(ops):
+                            break
+                        if index > 2:
+                            print(".", flush=True, end="" if index < 5 else "\n")
+                        deadlock_ops[index] += 1
+                        deadlock_ops[index - 1] = 0
+                    assert deadlock_ops[-1] < len(ops)
                     for index in range(0, len(keys)):
                         key = keys[index]
                         images[key]['op'] = deadlock_ops[index]
-                    images[deadlock_ops[0]]['op'] += 1
-                    for index in range(1, len(keys)):
-                        if images[deadlock_ops[i - 1]]['op'] < len(ops):
-                            break
-                        images[deadlock_ops[i]]['op'] += 1
-                        images[deadlock_ops[i - 1]]['op'] = 0
-                    assert images[deadlock_ops[-1]]['op'] < len(ops)
                 return False
             all_matches.append(matches)
         print("do we have corners?", len([x for x in all_matches if len(x) == 2]))
@@ -200,7 +202,6 @@ def match_all(images):
                 for bj in borders_j:
                     if bi == bj:
                         set_neigh(images, key_i, borders_i.index(bi), key_j)
-
 
 
 def get_corners(images):
@@ -237,32 +238,6 @@ def image_flip_horizontal(data):
 def image_flip_vertical(data):
     new_data = data[::-1]
     return new_data
-
-
-test = '''.#.#..#.##...#.##..#####
-###....#.#....#..#......
-##.##.###.#.#..######...
-###.#####...#.#####.#..#
-##.#....#.##.####...#.##
-...########.#....#####.#
-....#..#...##..#.#.###..
-.####...#..#.....#......
-#..#.##..#..###.#.##....
-#.####..#.####.#.#.###..
-###.#.#...#.######.#..##
-#.####....##..########.#
-##..##.#...#...#.#.#.#..
-...#..#..#.#.##..###.###
-.#.#....#.##.#...###.##.
-###.#...#..#.##.######..
-.#.#.###.##.##.#..#.##..
-.####.###.#...###.#..#.#
-..#.#..#..#.#.#.####.###
-#..####...#.#.#.###.###.
-#####..#####...###....##
-#.##..#..#...#..####...#
-.#.###..##..##..####.##.
-...###...##...#...#..###'''
 
 
 def has_monster(sea_data):
@@ -302,7 +277,7 @@ def has_monster(sea_data):
                         break
                 if found:
                     monsters_found.append((i, j, monsters.index(monster)))
-    print(monsters_found)
+    #print(monsters_found)
     return monsters_found
 
 
@@ -312,8 +287,7 @@ def calc_roughness(data, monsters):
         for line in image:
             sharps += sum(map(lambda x: 1 if '#' in x else 0, line))
         return sharps
-
-    print(calc_sharps(data) - monsters * calc_sharps(seamonster))
+    return calc_sharps(data) - monsters * calc_sharps(seamonster)
 
 
 def order_tiles(images):
@@ -342,22 +316,6 @@ def order_tiles(images):
         if left_one is None:
             break
 
-    print("***")
-    for line in grid:
-        for cell in line:
-            print(cell, end=" ")
-        print(" ")
-
-    print("***")
-    for line in grid:
-        line_count = len(images[list(images.keys())[0]]['data'])
-        for ln in range(0, line_count):
-            for cell in line:
-                print(images[cell]['data'][ln], end="")
-                print(" ", end=" ")
-            print(" ")
-        print(" ")
-
     return grid
 
 
@@ -370,8 +328,6 @@ def make_sea_image(images, grid):
                 content = images[cell]['data'][index][1:-1]
                 line += content
             data.append(line)
-
-    print("\n".join(data))
 
     return data
 
@@ -405,23 +361,34 @@ def manage_images(data):
 
     mul = 1
     for m in get_corners(images):
-       mul *= int(m)
+        mul *= int(m)
     print("corners:", mul)
 
     grid = order_tiles(images)
 
-    #grid = [['1951','2311','3079'],
-    #     ['2729','1427','2473'],
-    #    ['2971','1489','1171']]
+    '''
+    print("***")
+    for line in grid:
+        for cell in line:
+            print(cell, end=" ")
+        print(" ")
+
+    print("***")
+    for line in grid:
+        line_count = len(images[list(images.keys())[0]]['data'])
+        for ln in range(0, line_count):
+            for cell in line:
+                print(images[cell]['data'][ln], end="")
+                print(" ", end=" ")
+            print(" ")
+        print(" ")
+    '''
 
     sea_image = make_sea_image(images, grid)
 
-    mon = has_monster(sea_image)
-    if mon is not None:
-        print("Monster!", mon)
-    else:
-        print("No Monster")
+    #print("\n".join(data))
 
-    calc_roughness(sea_image, len(mon))
+    mon = has_monster(sea_image)
+    print("Roughness: ", calc_roughness(sea_image, len(mon)))
 
 
