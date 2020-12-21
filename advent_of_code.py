@@ -17,6 +17,7 @@ import day16
 import day17
 import day18
 import day19
+import day20
 
 import time
 
@@ -144,19 +145,23 @@ if __name__ == "__main__":
     day16.ticket_errors_scan(read_input('data/input16.txt'))
     day16.find_my_ticket_departure(read_input('data/input16.txt'))
 
-    '''
+  
     #day17.boot_cubes(read_example(day17.example), 3, 6)
     day17.boot_cubes(read_input('data/input17.txt'), 3, 6)
     #day17.boot_cubes(read_example(day17.example), 4, 6)
     day17.boot_cubes(read_input('data/input17.txt'), 4, 6)
-    '''
+    
     #day18.calc(read_example(day18.example1))
     day18.calc(read_input('data/input18.txt'))
     #day18.calc2(read_example(day18.example1))
     day18.calc2(read_input('data/input18.txt'))
-    '''
+    
 
     #day19.find_matches(read_example(day19.example))
-    #day19.find_matches(read_input('data/input19.txt'))
+    day19.find_matches(read_input('data/input19.txt'))
     #day19.find_matches(read_example(day19.example2), read_example(day19.update))
-    #day19.find_matches(read_input('data/input19.txt'), read_example(day19.update))
+    day19.find_matches(read_input('data/input19.txt'), read_example(day19.update))
+    '''
+    day20.manage_images(read_example(day20.example))
+    #day20.manage_images(read_input('data/input20.txt'))
+
