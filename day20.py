@@ -1,3 +1,5 @@
+import itertools
+
 example='''Tile 2311:
 ..##.#..#.
 ##..#.....
@@ -107,6 +109,8 @@ Tile 3079:
 ..#.###...
 '''
 
+seamonster = ["                  # ", "#    ##    ##    ###", " #  #  #  #  #  #   "]
+
 
 def generate_borders(data):
     image = data['data']
@@ -194,6 +198,34 @@ def get_corners(images):
     return corner_list
 
 
+def image_rotated(data, t):
+    for r in range(0, t):
+        array = [[] for x in range(0, len(data))]
+        for line in data:
+            ln = 0
+            for item in data:
+                array[ln].append(item)
+                ln += 1
+        new_data = []
+        for d in array:
+            new_data.append(''.join(d))
+        data = new_data
+    return new_data
+
+
+def image_flip_horizontal(data):
+    new_data = []
+    for line in data:
+        new_line = line[::-1]
+        new_data.append(new_line)
+    return data
+
+
+def image_flip_vertical(data):
+    new_data = data[::-1]
+    return data
+
+
 def flip_horizontal(images, key):
     data = images[key]['data']
     new_data = []
@@ -238,6 +270,16 @@ def flip(images, key):
     #neigh = [x for x in images[key]['neigh'] if x is not None]
     #images[key]['flip'] = set(x for x in neigh if x not in images[key]['flip'])
 '''
+
+
+def has_monster(data, i, j):
+    for jj in range(0, len(seamonster)):
+        sea_line = data[j + jj]
+        seamonster_line = seamonster[jj]
+        for ii in range(0, len(seamonster_line)):
+            if seamonster_line[ii] == '#' and sea_line[i + ii] != '#':
+                return False
+    return True
 
 
 def order_tiles(images):
@@ -348,20 +390,52 @@ def order_tiles(images):
         for cell in line:
             print(cell, end=" ")
         print(" ")
-    #image = []
-    #line_no = 0
-    #for line in grid:
-    #    data_line = ""
-    #    while True:
-    #        for cell in line:
-    #            if line_no == len(cell['data'])
-    #        for data_line in cell['data'][1:-1]:
-    #            line += ''.join(data_line[1:-1])
 
+    data = []
+    for ln in grid:
+        cell = ln[0]
+        for d in range(1, len(images[cell]['data']) - 1):
+            content = images[cell]['data'][d][1:-1]
+            data.append(content)
+        print("C", cell)
+    print(len(data))
+    ln_no = 0
+    for ln in grid:
+        for c in range(1, len(ln)):
+            if ln_no >= len(data):
+                ln_no = 0
+            cell = ln[c]
+            for d in range(1, len(images[cell]['data']) - 1):
+                content = images[cell]['data'][d][1:-1]
+                data[ln_no] += content
+                ln_no += 1
+    print("\n".join(data))
+    
+    seamonster_height = len(seamonster)
+    seamonster_width = len(seamonster[1])
 
+    test_array = [lambda _:None,
+                  lambda x: image_rotated(x, 1),
+                  lambda x: image_rotated(x, 2),
+                  lambda x: image_rotated(x, 3),
+                  lambda x: image_flip_horizontal(x),
+                  lambda x: image_flip_vertical(x)]
 
+    tests = []
+    for r in range(1, len(test_array)):
+        tests.append(itertools.combinations(test_array, r))
 
-
+    for test in tests:
+        test_data = data
+        for puff in test:
+            test_data = puff[0](test_data)
+            assert test_data is not None
+        for j in range(0, len(test_data) - seamonster_height):
+            line = test_data[j]
+            for i in range(0, len(line) - seamonster_width):
+                if has_monster(test_data, i, j):
+                    print("monster", i, j)
+    
 
 def make_image(image_data):
     return {'data': image_data, 'borders': [None] * 4, 'neigh': [None] * 4, 'orientation': 0}
