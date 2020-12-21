@@ -1,4 +1,3 @@
-import itertools
 
 example='''Tile 2311:
 ..##.#..#.
@@ -109,81 +108,99 @@ Tile 3079:
 ..#.###...
 '''
 
-seamonster = ["                  # ", "#    ##    ##    ###", " #  #  #  #  #  #   "]
+
+seamonster = ["                  # ",
+              "#    ##    ##    ###",
+              " #  #  #  #  #  #   "]
 
 
-def generate_borders(data):
-    image = data['data']
-    data['borders'][0] = [x for x in image[0]]
-    data['borders'][1] = [image[x][-1] for x in range(0, len(image))]
-    data['borders'][2] = [image[-1][x] for x in range(0, len(image))]
-    data['borders'][3] = [image[x][0] for x in range(0, len(image))]
-
-
-def rotate(images, key):
-    neighs = images[key]['neigh']
-    tmp = neighs[3]
-    neighs[3] = neighs[2]
-    neighs[2] = neighs[1]
-    neighs[1] = neighs[0]
-    neighs[0] = tmp
-    neighs = images[key]['borders']
-    tmp = neighs[3]
-    neighs[3] = neighs[2]
-    neighs[2] = neighs[1]
-    neighs[1] = neighs[0]
-    neighs[0] = tmp
-    images[key]['borders'] = neighs
-    images[key]['orientation'] += 1
-    images[key]['orientation'] %= 4
+def get_borders(image):
+    return [[x for x in image[0]],
+            [image[x][-1] for x in range(0, len(image))],
+            [image[-1][x] for x in range(0, len(image))],
+            [image[x][0] for x in range(0, len(image))]]
 
 
 def set_neigh(images, key, pos, neigh):
     n = images[key]['neigh']
-    if neigh == '1171':
-        print("nka")
-    if n[pos] is not None:
-        print("HERE", key, neigh, pos, images[key]['orientation'], images[neigh]['orientation'], n)
-    #pos -= images[key]['orientation']
-    #pos %= 4
-    if n[pos] is not None:
-        print("GERE", key, neigh, pos, images[key]['orientation'], images[neigh]['orientation'], n)
-    #assert n[pos] is None
+    assert n[pos] is None
     n[pos] = neigh
 
 
-def do_match(images, key_i, key_j):
-    matches = []
+def match_all(images):
+    ops = [lambda data: data,
+           lambda data: image_flip_vertical(data),
+           lambda data: image_flip_horizontal(data),
+           lambda data: image_flip_horizontal(image_flip_vertical(data)),
+           lambda data: image_rotated(data),
+           lambda data: image_flip_vertical(image_rotated(data)),
+           lambda data: image_flip_horizontal(image_rotated(data)),
+           lambda data: image_flip_horizontal(image_flip_vertical(image_rotated(data)))]
 
-    def loop():
-        nonlocal matches
-        borders_i = images[key_i]['borders']
-        borders_j = images[key_j]['borders']
-        matches = []
-        for bi in range(0, len(borders_i)):
-            for bj in range(0, len(borders_j)):
-                if borders_i[bi] == borders_j[bj]:
-                    matches.append((bi, bj))
-                elif borders_i[bi][::-1] == borders_j[bj]:
-                    #print("flippable", key_i, key_j, bi, bj)
-                    if bi == 0 or bi == 2:
-                        flip_horizontal(images, key_i)
-                    else:
-                        flip_vertical(images, key_i)
-                    return False
-                    #matches.append((bi, bj))
-                    #images[key_i]['flip'].add(key_j)
-        return True
+    keys = list(images.keys())
+    deadlock_ops = [0] * len(keys)
+    all_matches = []
 
-    while not loop():
+    def run():
+        all_matches.clear()
+        for i in range(0, len(keys)):
+            current_i = keys[i]
+            current_tile_i = images[current_i]
+            data_i = current_tile_i['data']
+            op_i = current_tile_i['op']
+            test_data_i = ops[op_i](data_i)
+            borders_i = get_borders(test_data_i)
+            matches = []
+            for j in range(0, len(keys)):
+                if i == j:
+                    continue
+                current_j = keys[j]
+                current_tile_j = images[current_j]
+                data_j = current_tile_j['data']
+                op_j = current_tile_j['op']
+                test_data_j = ops[op_j](data_j)
+                borders_j = get_borders(test_data_j)
+                ranges = [(0, 2), (2, 0), (1, 3), (3, 1)]
+                for r in ranges:
+                    if borders_i[r[0]] == borders_j[r[1]]:
+                        matches.append((current_i, current_j, r[0], r[1]))
+            if len(matches) < 1:
+                current_tile_i['op'] += 1
+                if current_tile_i['op'] >= len(ops):
+                    nonlocal deadlock_ops
+                    for index in range(0, len(keys)):
+                        key = keys[index]
+                        images[key]['op'] = deadlock_ops[index]
+                    images[deadlock_ops[0]]['op'] += 1
+                    for index in range(1, len(keys)):
+                        if images[deadlock_ops[i - 1]]['op'] < len(ops):
+                            break
+                        images[deadlock_ops[i]]['op'] += 1
+                        images[deadlock_ops[i - 1]]['op'] = 0
+                    assert images[deadlock_ops[-1]]['op'] < len(ops)
+                return False
+            all_matches.append(matches)
+        print("do we have corners?", len([x for x in all_matches if len(x) == 2]))
+        return len([x for x in all_matches if len(x) == 2]) == 4
+
+    while not run():
         None
 
-    for m in matches:
-        set_neigh(images, key_i, m[0], key_j)
-        set_neigh(images, key_j, m[1], key_i)
-        #rotate(images, key_i, m[0], key_j)
-        #rotate(images, key_j, m[1], key_i)
-    return True
+    for k in keys:
+        op = images[k]['op']
+        images[k]['data'] = ops[op](images[k]['data'])
+
+    for matches in all_matches:
+        for match in matches:
+            key_i = match[0]
+            key_j = match[1]
+            borders_i = get_borders(images[key_i]['data'])
+            borders_j = get_borders(images[key_j]['data'])
+            for bi in borders_i:
+                for bj in borders_j:
+                    if bi == bj:
+                        set_neigh(images, key_i, borders_i.index(bi), key_j)
+
 
 
 def get_corners(images):
@@ -198,18 +215,14 @@ def get_corners(images):
     return corner_list
 
 
-def image_rotated(data, t):
-    for r in range(0, t):
-        array = [[] for x in range(0, len(data))]
-        for line in data:
-            ln = 0
-            for item in data:
-                array[ln].append(item)
-                ln += 1
-        new_data = []
-        for d in array:
-            new_data.append(''.join(d))
-        data = new_data
+def image_rotated(data):
+    new_data = [""] * len(data[0])
+    line_len = len(data[0])
+    lines_len = len(data)
+    for line_pos in range(0, line_len):
+        for p in range(0, lines_len):
+            c = data[lines_len - p - 1][line_pos]
+            new_data[line_pos] += c
     return new_data
 
 
@@ -218,150 +231,95 @@ def image_flip_horizontal(data):
     for line in data:
         new_line = line[::-1]
         new_data.append(new_line)
-    return data
+    return new_data
 
 
 def image_flip_vertical(data):
     new_data = data[::-1]
-    return data
+    return new_data
 
 
-def flip_horizontal(images, key):
-    data = images[key]['data']
-    new_data = []
-    for line in data:
-        new_line = line[::-1]
-        new_data.append(new_line)
-    images[key]['data'] = new_data
-    generate_borders(images[key])
+test = '''.#.#..#.##...#.##..#####
+###....#.#....#..#......
+##.##.###.#.#..######...
+###.#####...#.#####.#..#
+##.#....#.##.####...#.##
+...########.#....#####.#
+....#..#...##..#.#.###..
+.####...#..#.....#......
+#..#.##..#..###.#.##....
+#.####..#.####.#.#.###..
+###.#.#...#.######.#..##
+#.####....##..########.#
+##..##.#...#...#.#.#.#..
+...#..#..#.#.##..###.###
+.#.#....#.##.#...###.##.
+###.#...#..#.##.######..
+.#.#.###.##.##.#..#.##..
+.####.###.#...###.#..#.#
+..#.#..#..#.#.#.####.###
+#..####...#.#.#.###.###.
+#####..#####...###....##
+#.##..#..#...#..####...#
+.#.###..##..##..####.##.
+...###...##...#...#..###'''
 
 
-def flip_vertical(images, key):
-    data = images[key]['data']
-    new_data = data[::-1]
-    images[key]['data'] = new_data
-    generate_borders(images[key])
+def has_monster(sea_data):
+    monsters = [seamonster,
+                image_flip_vertical(seamonster),
+                image_flip_horizontal(seamonster),
+                image_flip_horizontal(image_flip_vertical(seamonster)),
+                image_rotated(seamonster),
+                image_flip_vertical(image_rotated(seamonster)),
+                image_flip_horizontal(image_rotated(seamonster)),
+                image_flip_horizontal(image_flip_vertical(image_rotated(seamonster)))]
+
+    monsters_found = []
+
+    sea_height = len(sea_data)
+    sea_width = len(sea_data[0])
+
+    for monster in monsters:
+        monster_height = len(monster)
+        monster_width = len(monster[0])
+
+        for j in range(0, sea_height - monster_height):
+            for i in range(0, sea_width - monster_width):
+                found = True
+                for jj in range(0, monster_height):
+                    sea_line = sea_data[j + jj]
+                    monster_line = monster[jj]
+                    for ii in range(0, len(monster_line)):
+                        m = monster_line[ii]
+                        s = sea_line[i + ii]
+                        if m == '#' and s != '#':
+                            found = False
+                            break
+                        #print(s, end='')
+                    #print(" ")
+                    if not found:
+                        break
+                if found:
+                    monsters_found.append((i, j, monsters.index(monster)))
+    print(monsters_found)
+    return monsters_found
 
 
-'''
-def flip(images, key):
-    data = images[key]['data']
-    new_data = []
-    for i in range(1, len(data) + 1):
-        line = data[len(data) - i][::-1]
-        new_data.append(line)
-    images[key]['data'] = new_data
-    generate_borders(images[key])
+def calc_roughness(data, monsters):
+    def calc_sharps(image):
+        sharps = 0
+        for line in image:
+            sharps += sum(map(lambda x: 1 if '#' in x else 0, line))
+        return sharps
 
-    neighs = images[key]['neigh']
-
-    neighs[1], neighs[3] = neighs[3], neighs[1]
-    neighs[2], neighs[0] = neighs[0], neighs[2]
-
-    #flipped = images[key]['flip']
-
-    #print("flip", key)
-
-    #images[key]['flip'] = []
-
-    #for f in flipped:
-    #    flip(images, f)
-
-    #neigh = [x for x in images[key]['neigh'] if x is not None]
-    #images[key]['flip'] = set(x for x in neigh if x not in images[key]['flip'])
-'''
-
-
-def has_monster(data, i, j):
-    for jj in range(0, len(seamonster)):
-        sea_line = data[j + jj]
-        seamonster_line = seamonster[jj]
-        for ii in range(0, len(seamonster_line)):
-            if seamonster_line[ii] == '#' and sea_line[i + ii] != '#':
-                return False
-    return True
+    print(calc_sharps(data) - monsters * calc_sharps(seamonster))
 
 
 def order_tiles(images):
-
-    def rotate_all():
-        failed = {}
-        for im in images.keys():
-            neigh = images[im]['neigh']
-            failed[im] = 0
-            for r in range(0, 4):
-                if neigh[r] is not None:
-                    nim = images[neigh[r]]['neigh']
-                    if r == 0 and im != nim[2]:
-                        failed[im] += 1
-                    if r == 1 and im != nim[3]:
-                        failed[im] += 1
-                    if r == 2 and im != nim[0]:
-                        failed[im] += 1
-                    if r == 3 and im != nim[1]:
-                        failed[im] += 1
-
-        worst = max(failed, key=failed.get)
-        nl = len([x for x in images[worst]['neigh'] if x is not None])
-        print(worst, failed[worst], nl)
-        if failed[worst] == nl:
-            rotate(images, worst)
-            return False
-        return True
-
-    while not rotate_all():
-        None
-
-    def flip_all():
-        failed_v = {}
-        failed_h = {}
-        for im in images.keys():
-            neigh = images[im]['neigh']
-            failed_v[im] = 0
-            failed_h[im] = 0
-            for r in range(0, 4):
-                if neigh[r] is not None:
-                    nim = images[neigh[r]]['neigh']
-                    if r == 0 and im != nim[2]:
-                        failed_h[im] += 1
-                    if r == 1 and im != nim[3]:
-                        failed_v[im] += 1
-                    if r == 2 and im != nim[0]:
-                        failed_h[im] += 1
-                    if r == 3 and im != nim[1]:
-                        failed_v[im] += 1
-
-        worst_v = max(failed_h, key=failed_v.get)
-        worst_h = max(failed_v, key=failed_h.get)
-        nv = images[worst_v]['neigh']
-        nh = images[worst_v]['neigh']
-        nl_v = len([x for x in range(0, len(nv)) if nv[x] is not None and x == 0 or x == 2])
-        nl_h = len([x for x in range(0, len(nh)) if nh[x] is not None and x == 1 or x == 3])
-        print(worst_v, worst_h,
-              failed_v[worst_v], failed_h[worst_h],
-              nl_v, nl_h)
-        if failed_v[worst_v] == nl_v:
-            neighs = images[worst_v]['neigh']
-            neighs[1], neighs[3] = neighs[3], neighs[1]
-            return False
-        if failed_h[worst_h] == nl_h:
-            neighs = images[worst_v]['neigh']
-            neighs[2], neighs[0] = neighs[0], neighs[2]
-            return False
-        return True
-
-    while not flip_all():
-        None
-
-
-    pos = {0: (0, 3),
-           1: (0, 1),
-           2: (2, 1),
-           3: (2, 3)}
-
     top_left = None
     for cor in get_corners(images):
-        if images[cor]['neigh'][0] == None and images[cor]['neigh'][3] == None:
+        if images[cor]['neigh'][0] is None and images[cor]['neigh'][3] is None:
             top_left = cor
             break
 
@@ -385,60 +343,43 @@ def order_tiles(images):
             break
 
     print("***")
-
     for line in grid:
         for cell in line:
             print(cell, end=" ")
         print(" ")
 
+    print("***")
+    for line in grid:
+        line_count = len(images[list(images.keys())[0]]['data'])
+        for ln in range(0, line_count):
+            for cell in line:
+                print(images[cell]['data'][ln], end="")
+                print(" ", end=" ")
+            print(" ")
+        print(" ")
+
+    return grid
+
+
+def make_sea_image(images, grid):
     data = []
     for ln in grid:
-        cell = ln[0]
-        for d in range(1, len(images[cell]['data']) - 1):
-            content = images[cell]['data'][d][1:-1]
-            data.append(content)
-        print("C", cell)
-    print(len(data))
-    ln_no = 0
-    for ln in grid:
-        for c in range(1, len(ln)):
-            if ln_no >= len(data):
-                ln_no = 0
-            cell = ln[c]
-            for d in range(1, len(images[cell]['data']) - 1):
-                content = images[cell]['data'][d][1:-1]
-                data[ln_no] += content
-                ln_no += 1
+        for index in range(1, len(images[ln[0]]['data']) - 1):
+            line = ""
+            for cell in ln:
+                content = images[cell]['data'][index][1:-1]
+                line += content
+            data.append(line)
+
     print("\n".join(data))
-    
-    seamonster_height = len(seamonster)
-    seamonster_width = len(seamonster[1])
 
-    test_array = [lambda _:None,
-                  lambda x: image_rotated(x, 1),
-                  lambda x: image_rotated(x, 2),
-                  lambda x: image_rotated(x, 3),
-                  lambda x: image_flip_horizontal(x),
-                  lambda x: image_flip_vertical(x)]
+    return data
 
-    tests = []
-    for r in range(1, len(test_array)):
-        tests.append(itertools.combinations(test_array, r))
-
-    for test in tests:
-        test_data = data
-        for puff in test:
-            test_data = puff[0](test_data)
-            assert test_data is not None
-        for j in range(0, len(test_data) - seamonster_height):
-            line = test_data[j]
-            for i in range(0, len(line) - seamonster_width):
-                if has_monster(test_data, i, j):
-                    print("monster", i, j)
-    
 
 def make_image(image_data):
-    return {'data': image_data, 'borders': [None] * 4, 'neigh': [None] * 4, 'orientation': 0}
+    return {'data': image_data,
+            'neigh': [None] * 4,
+            'op': 0}
 
 
 def manage_images(data):
@@ -446,39 +387,41 @@ def manage_images(data):
     image_data = None
     images = {}
     for line in data:
-       if len(line) == 0:
-           if key is not None:
-               images[key] = make_image(image_data)
-           key = None
-           continue
-       if key is None:
-           key = line.split(' ')[1][:-1]
-           image_data = []
-       else:
-           image_data.append(line)
+        if len(line) == 0:
+            if key is not None:
+                images[key] = make_image(image_data)
+            key = None
+            continue
+        if key is None:
+            key = line.split(' ')[1][:-1]
+            image_data = []
+        else:
+            image_data.append(line)
 
     if key is not None:
-       images[key] = make_image(image_data)
+        images[key] = make_image(image_data)
 
-    for image in images.values():
-       generate_borders(image)
-
-    keys = [x for x in images.keys()]
-
-    def run():
-        for i in range(0, len(keys)):
-            for j in range(i + 1, len(keys)):
-                if not do_match(images, keys[i], keys[j]):
-                    return False
-        return True
-
-    run()
+    match_all(images)
 
     mul = 1
     for m in get_corners(images):
        mul *= int(m)
     print("corners:", mul)
 
-    order_tiles(images)
+    grid = order_tiles(images)
+
+    #grid = [['1951','2311','3079'],
+    #     ['2729','1427','2473'],
+    #    ['2971','1489','1171']]
+
+    sea_image = make_sea_image(images, grid)
+
+    mon = has_monster(sea_image)
+    if mon is not None:
+        print("Monster!", mon)
+    else:
+        print("No Monster")
+
+    calc_roughness(sea_image, len(mon))
 
 
