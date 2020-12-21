@@ -23,14 +23,16 @@ def find_safe_food(data):
 
     possibilities = {}
     for a in allergens:
-        f = set()
+        f = None
         for food in foods:
             if a in food['all']:
-                f = f.union(food['inc'])
+                if f is None:
+                    f = set(food['inc'])
+                else:
+                    f.intersection_update(food['inc'])
         possibilities[a] = f
 
-    for p in possibilities.items():
-        print(p)
+    safe_food = set()
 
     for inc in ingredients:
         found = False
@@ -38,5 +40,32 @@ def find_safe_food(data):
             if inc in p:
                 found = True
         if not found:
-            print(inc)
+            safe_food.add(inc)
+
+    count = 0
+    for f in foods:
+        for s in safe_food:
+            if s in f['inc']:
+                count += 1
+    print("Safe count", count)
+
+    canonical_list = {}
+    while True:
+        if len(possibilities) == 0:
+            break
+        for k, v in possibilities.items():
+            if len(v) == 1:
+                canonical_list[v.pop()] = k
+
+        possibilities = {k: v for k, v in possibilities.items() if len(v) > 0}
+
+        for k in canonical_list.keys():
+            for pk, pset in possibilities.items():
+                if k in pset:
+                    possibilities[pk].remove(k)
+
+    dangerous_stuff = list(canonical_list.items())
+    dangerous_stuff.sort(key=lambda t: t[1])
+    print("Dangerous stuff:", ','.join([x[0] for x in dangerous_stuff]))
+
 

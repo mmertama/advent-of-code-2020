@@ -165,8 +165,9 @@ if __name__ == "__main__":
     '''
 
 #    day20.calc_roughness(read_example(day20.test), len(day20.has_monster(read_example(day20.test))))
-    day20.manage_images(read_example(day20.example))
-    day20.manage_images(read_input('data/input20.txt'))
+    #day20.manage_images(read_example(day20.example))
+    #day20.manage_images(read_input('data/input20.txt'))
 
-    #day21.find_safe_food(read_example(day21.example))
+    day21.find_safe_food(read_example(day21.example))
+    day21.find_safe_food(read_input('data/input21.txt'))
 
