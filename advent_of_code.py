@@ -173,7 +173,7 @@ if __name__ == "__main__":
     #day22.play_space_cards(read_example(day22.example))
     #day22.play_space_cards(read_input('data/input22.txt'))
 
-    #day22.play_space_cards_recursive(read_example(day22.example))
+    day22.play_space_cards_recursive(read_example(day22.example))
     day22.play_space_cards_recursive(read_input('data/input22.txt'))
 
 

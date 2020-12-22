@@ -21,6 +21,7 @@ Player 2:
 29
 14'''
 
+
 def make_game(data):
     game = {}
     current_player = None
@@ -41,6 +42,7 @@ def make_game(data):
 
 
 def game_declare_winner(player, deck, rounds):
+    print(deck[::-1])
     score = 0
     for i in range(0, len(deck)):
         score += (i + 1) * deck[i]
@@ -62,16 +64,14 @@ def play_space_cards(data):
         if c1 > c2:
             deck1.insert(0, c1)
             deck1.insert(0, c2)
-        elif c2 > c1:
-            deck2.insert(0, c2)
-            deck2.insert(0, c1)
+            if len(deck2) == 0:
+                break
         else:
             deck2.insert(0, c2)
-            deck1.insert(0, c1)
-        if len(deck1) == 0:
-            break
-        if len(deck2) == 0:
-            break
+            deck2.insert(0, c1)
+            if len(deck1) == 0:
+                break
+        # assert c2 != c1 # There are no same cards
 
     if len(deck2) == 0:
         game_declare_winner(player1, deck1, rounds)
@@ -79,15 +79,14 @@ def play_space_cards(data):
         game_declare_winner(player2, deck2, rounds)
 
 
-def has_previous(current_deck, history, player):
-    size = len(current_deck)
-    signature = ''.join(str(x) for x in current_deck)
-    if size in history[player]:
-        if signature in history[player][size]:
-            return True
-        history[player][size].add(signature)
+def in_previous(history, deck1, deck2):
+    signature = ','.join(
+        str(x) for x in deck1) + '_' + ','.join(
+        str(x) for x in deck2)
+    if signature in history:
+        return True
     else:
-        history[player][size] = {signature}
+        history.add(signature)
     return False
 
 
@@ -98,54 +97,28 @@ def play_space_cards_recursive(data):
     player2 = players[1]
     deck1 = game[player1]
     deck2 = game[player2]
-    results = {}
-    winner, deck, rounds = play_game((player1, deck1), (player2, deck2), 1, results)
+    winner, deck, rounds = play_game((player1, deck1), (player2, deck2))
     game_declare_winner(winner, deck, rounds)
 
 
-def make_sig(deck1, deck2):
-    return str(len(deck1)) + '_' + str(len(deck2)) + '_' + ''.join(str(x) for x in deck1) + ''.join(
-        str(x) for x in deck1)
-
-
-def join(results, games, winner):
-    for g in games:
-        #assert g not in results
-        results[g] = winner
-
-
-def play_game(p1, p2, sub_game, results):
+def play_game(p1, p2):
     rounds = 0
     player1 = p1[0]
     player2 = p2[0]
     deck1 = [x for x in p1[1]]
     deck2 = [x for x in p2[1]]
-    history = {player1: {}, player2: {}}
-    games = set()
+    history = set()
     while True:
         rounds += 1
-        signature = make_sig(deck1, deck2)
-        if signature in results:
-            #print("on loop", len(results), sub_game)
-            join(results, games, results[signature])
-            return results[signature], deck1, rounds
-        games.add(signature)
-        if has_previous(deck1, history, player1):
-            join(results, games, player1)
-            return player1, deck1, rounds
-        if has_previous(deck2, history, player2):
-            join(results, games, player2)
-            return player1, deck1, rounds
+        if in_previous(history, deck1, deck2):
+            return player1, deck1, round
         c1 = deck1.pop()
         c2 = deck2.pop()
-        if c1 <= len(deck1) and c2 <= len(deck2):
-            signature = make_sig(deck1, deck2)
-            if signature in results:
-                #print("on sub", len(results), sub_game)
-                sub_winner = results[signature]
-            else:
-                sub_winner, _, _ = play_game((player1, deck1), (player2, deck2), sub_game + 1, results)
-                results[signature] = sub_winner
+        l1 = len(deck1)
+        l2 = len(deck2)
+        if l1 >= c1 and l2 >= c2:
+            sub_winner, _, _ = play_game(
+                (player1, deck1[-c1:]), (player2, deck2[-c2:]))
             if sub_winner == player1:
                 deck1.insert(0, c1)
                 deck1.insert(0, c2)
@@ -156,29 +129,18 @@ def play_game(p1, p2, sub_game, results):
             if c1 > c2:
                 deck1.insert(0, c1)
                 deck1.insert(0, c2)
-            elif c2 > c1:
-                deck2.insert(0, c2)
-                deck2.insert(0, c1)
             else:
                 deck2.insert(0, c2)
-                deck1.insert(0, c1)
-        if len(deck1) == 0:
-            break
-        if len(deck2) == 0:
+                deck2.insert(0, c1)
+        # assert c2 != c1 # There are no same cards
+        if len(deck1) == 0 or len(deck2) == 0:
             break
 
-    signature = make_sig(deck1, deck2)
     if len(deck2) == 0:
-        results[signature] = player1
-        join(results, games, player1)
         return player1, deck1, rounds
     else:
-        results[signature] = player2
-        join(results, games, player2)
+        assert len(deck1) == 0
         return player2, deck2, rounds
-
-
-
 
 
 
