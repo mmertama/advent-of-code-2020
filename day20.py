@@ -1,3 +1,4 @@
+import math
 
 example='''Tile 2311:
 ..##.#..#.
@@ -138,70 +139,76 @@ def match_all(images):
            lambda data: image_flip_horizontal(image_flip_vertical(image_rotated(data)))]
 
     keys = list(images.keys())
-    deadlock_ops = [0] * len(keys)
-    all_matches = []
+    all_matches = {}
+    sets = []
 
     def run():
-        all_matches.clear()
+        nonlocal sets
         for i in range(0, len(keys)):
             current_i = keys[i]
+            if current_i in all_matches:
+                continue
             current_tile_i = images[current_i]
             data_i = current_tile_i['data']
-            op_i = current_tile_i['op']
+            op_i = current_tile_i['op'] % len(ops)
             test_data_i = ops[op_i](data_i)
             borders_i = get_borders(test_data_i)
-            matches = []
+            all_matches[current_i] = []
             for j in range(0, len(keys)):
                 if i == j:
                     continue
                 current_j = keys[j]
                 current_tile_j = images[current_j]
                 data_j = current_tile_j['data']
-                op_j = current_tile_j['op']
+                op_j = current_tile_j['op'] % len(ops)
                 test_data_j = ops[op_j](data_j)
                 borders_j = get_borders(test_data_j)
                 ranges = [(0, 2), (2, 0), (1, 3), (3, 1)]
                 for r in ranges:
                     if borders_i[r[0]] == borders_j[r[1]]:
-                        matches.append((current_i, current_j, r[0], r[1]))
-            if len(matches) < 2:
-                current_tile_i['op'] += 1
-                if current_tile_i['op'] >= len(ops):
-                    nonlocal deadlock_ops
-                    deadlock_ops[0] += 1
-                    for index in range(1, len(deadlock_ops)):
-                        if deadlock_ops[index - 1] < len(ops):
-                            break
-                        if index > 2:
-                            print(".", flush=True, end="" if index < 5 else "\n")
-                        deadlock_ops[index] += 1
-                        deadlock_ops[index - 1] = 0
-                    assert deadlock_ops[-1] < len(ops)
-                    for index in range(0, len(keys)):
-                        key = keys[index]
-                        images[key]['op'] = deadlock_ops[index]
-                return False
-            all_matches.append(matches)
-        print("do we have corners?", len([x for x in all_matches if len(x) == 2]))
-        return len([x for x in all_matches if len(x) == 2]) == 4
+                        all_matches[current_i].append(current_j)
+
+        for k, v in all_matches.items():
+            cloud = set([k] + [x for x in v])
+            found = [s for s in sets if len(cloud.intersection(s)) > 0]
+            for f in found:
+                sets.remove(f)
+                cloud = cloud.union(f)
+            sets.append(cloud)
+
+        if len(sets) > 1:
+            smallest = min(sets, key=len)
+            for key in smallest:
+                all_matches.pop(key)
+                images[key]['op'] += 1
+
+            return False
+        corner_count = 4
+        edge_count = (int(math.sqrt(len(images))) - 2) * 4
+        inner_count = len(images) - corner_count - edge_count
+        if not (len([x for x in all_matches.values() if len(x) == 2]) == corner_count and
+                len([x for x in all_matches.values() if len(x) == 3]) == edge_count and
+                len([x for x in all_matches.values() if len(x) == 4]) == inner_count):
+            all_matches.clear()
+            sets.clear()
+            return False
+        return True
 
     while not run():
         None
 
     for k in keys:
-        op = images[k]['op']
+        op = images[k]['op'] % len(ops)
         images[k]['data'] = ops[op](images[k]['data'])
 
-    for matches in all_matches:
-        for match in matches:
-            key_i = match[0]
-            key_j = match[1]
-            borders_i = get_borders(images[key_i]['data'])
-            borders_j = get_borders(images[key_j]['data'])
-            for bi in borders_i:
-                for bj in borders_j:
+    for key_i, m_v in all_matches.items():
+        for key_j in m_v:
+            borders_list_i = get_borders(images[key_i]['data'])
+            borders_list_j = get_borders(images[key_j]['data'])
+            for bi in borders_list_i:
+                for bj in borders_list_j:
                     if bi == bj:
-                        set_neigh(images, key_i, borders_i.index(bi), key_j)
+                        set_neigh(images, key_i, borders_list_i.index(bi), key_j)
 
 
 def get_corners(images):
@@ -271,13 +278,10 @@ def has_monster(sea_data):
                         if m == '#' and s != '#':
                             found = False
                             break
-                        #print(s, end='')
-                    #print(" ")
                     if not found:
                         break
                 if found:
                     monsters_found.append((i, j, monsters.index(monster)))
-    #print(monsters_found)
     return monsters_found
 
 
@@ -366,29 +370,8 @@ def manage_images(data):
 
     grid = order_tiles(images)
 
-    '''
-    print("***")
-    for line in grid:
-        for cell in line:
-            print(cell, end=" ")
-        print(" ")
-
-    print("***")
-    for line in grid:
-        line_count = len(images[list(images.keys())[0]]['data'])
-        for ln in range(0, line_count):
-            for cell in line:
-                print(images[cell]['data'][ln], end="")
-                print(" ", end=" ")
-            print(" ")
-        print(" ")
-    '''
-
     sea_image = make_sea_image(images, grid)
-
-    #print("\n".join(data))
 
     mon = has_monster(sea_image)
     print("Roughness: ", calc_roughness(sea_image, len(mon)))
-
 

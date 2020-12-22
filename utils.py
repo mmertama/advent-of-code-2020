@@ -61,3 +61,22 @@ def print_hyper_grid(grid):
                 print("")
             print("")
         print("")
+
+
+def print_grid(grid):
+    print("***")
+    for line in grid:
+        for cell in line:
+            print(cell, end=" ")
+        print(" ")
+
+
+def print_grid_data(grid, images):
+    for line in grid:
+        line_count = len(images[list(images.keys())[0]]['data'])
+        for ln in range(0, line_count):
+            for cell in line:
+                print(images[cell]['data'][ln], end="")
+                print(" ", end=" ")
+            print(" ")
+        print(" ")
