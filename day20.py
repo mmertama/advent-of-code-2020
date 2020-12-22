@@ -115,6 +115,7 @@ seamonster = ["                  # ",
               " #  #  #  #  #  #   "]
 
 
+# get edges for matching
 def get_borders(image):
     return [[x for x in image[0]],
             [image[x][-1] for x in range(0, len(image))],
@@ -122,12 +123,14 @@ def get_borders(image):
             [image[x][0] for x in range(0, len(image))]]
 
 
+# just set neigh in safe manner
 def set_neigh(images, key, pos, neigh):
     n = images[key]['neigh']
     assert n[pos] is None
     n[pos] = neigh
 
 
+# rotate flip and fly until it fits in, could be much faster if images would be re-creted as with sea monster match
 def match_all(images):
     ops = [lambda data: data,
            lambda data: image_flip_vertical(data),
@@ -156,33 +159,36 @@ def match_all(images):
             all_matches[current_i] = []
             for j in range(0, len(keys)):
                 if i == j:
-                    continue
+                    continue # Im me!
                 current_j = keys[j]
                 current_tile_j = images[current_j]
                 data_j = current_tile_j['data']
                 op_j = current_tile_j['op'] % len(ops)
                 test_data_j = ops[op_j](data_j)
                 borders_j = get_borders(test_data_j)
-                ranges = [(0, 2), (2, 0), (1, 3), (3, 1)]
+                ranges = [(0, 2), (2, 0), (1, 3), (3, 1)] # Only valid directions
                 for r in ranges:
                     if borders_i[r[0]] == borders_j[r[1]]:
                         all_matches[current_i].append(current_j)
-
+        # This make effiency, matches are split to sets and only the
+        # smallest set is flip... etc until it can be merged with larger set
+        # initially everything was flipped... but with larger map that took hours/days
         for k, v in all_matches.items():
             cloud = set([k] + [x for x in v])
             found = [s for s in sets if len(cloud.intersection(s)) > 0]
-            for f in found:
+            for f in found: # they have common, so they can be united
                 sets.remove(f)
                 cloud = cloud.union(f)
             sets.append(cloud)
 
-        if len(sets) > 1:
+        if len(sets) > 1:  # we have smaller set to work with
             smallest = min(sets, key=len)
             for key in smallest:
-                all_matches.pop(key)
-                images[key]['op'] += 1
-
-            return False
+                all_matches.pop(key)    # remove from matches
+                images[key]['op'] += 1  # do op flip etc...
+            return False                # retry
+        # zero sets, but let data be recreated for complete matching,
+        # this if could just be a 'if not finalized', finalize = true
         corner_count = 4
         edge_count = (int(math.sqrt(len(images))) - 2) * 4
         inner_count = len(images) - corner_count - edge_count
@@ -196,11 +202,11 @@ def match_all(images):
 
     while not run():
         None
-
+    # apply ops
     for k in keys:
         op = images[k]['op'] % len(ops)
         images[k]['data'] = ops[op](images[k]['data'])
-
+    # set final neighbors
     for key_i, m_v in all_matches.items():
         for key_j in m_v:
             borders_list_i = get_borders(images[key_i]['data'])
@@ -209,8 +215,9 @@ def match_all(images):
                 for bj in borders_list_j:
                     if bi == bj:
                         set_neigh(images, key_i, borders_list_i.index(bi), key_j)
+    # done
 
-
+# this could be oneliner as above
 def get_corners(images):
     corner_list = []
     for k, v in images.items():
@@ -223,6 +230,7 @@ def get_corners(images):
     return corner_list
 
 
+# return 90 deg rotated
 def image_rotated(data):
     new_data = [""] * len(data[0])
     line_len = len(data[0])
@@ -234,6 +242,7 @@ def image_rotated(data):
     return new_data
 
 
+# flip each line
 def image_flip_horizontal(data):
     new_data = []
     for line in data:
@@ -242,11 +251,13 @@ def image_flip_horizontal(data):
     return new_data
 
 
+# flip lines
 def image_flip_vertical(data):
     new_data = data[::-1]
     return new_data
 
 
+# pattern matching
 def has_monster(sea_data):
     monsters = [seamonster,
                 image_flip_vertical(seamonster),
@@ -294,6 +305,7 @@ def calc_roughness(data, monsters):
     return calc_sharps(data) - monsters * calc_sharps(seamonster)
 
 
+# build up a tile grid
 def order_tiles(images):
     top_left = None
     for cor in get_corners(images):
@@ -323,6 +335,7 @@ def order_tiles(images):
     return grid
 
 
+# merge images according to grid
 def make_sea_image(images, grid):
     data = []
     for ln in grid:
