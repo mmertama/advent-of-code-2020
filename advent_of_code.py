@@ -19,6 +19,7 @@ import day18
 import day19
 import day20
 import day21
+import day22
 
 import time
 
@@ -162,11 +163,17 @@ if __name__ == "__main__":
     day19.find_matches(read_input('data/input19.txt'))
     #day19.find_matches(read_example(day19.example2), read_example(day19.update))
     day19.find_matches(read_input('data/input19.txt'), read_example(day19.update))
-    '''
 
-    day20.manage_images(read_example(day20.example))
+    #day20.manage_images(read_example(day20.example))
     day20.manage_images(read_input('data/input20.txt'))
 
     #day21.find_safe_food(read_example(day21.example))
-    #day21.find_safe_food(read_input('data/input21.txt'))
+    day21.find_safe_food(read_input('data/input21.txt'))
+    '''
+    #day22.play_space_cards(read_example(day22.example))
+    #day22.play_space_cards(read_input('data/input22.txt'))
+
+    #day22.play_space_cards_recursive(read_example(day22.example))
+    day22.play_space_cards_recursive(read_input('data/input22.txt'))
+
 
