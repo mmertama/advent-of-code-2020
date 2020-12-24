@@ -16,7 +16,6 @@ class CircleList:
         for x in reversed(array):
             self.node = Node(x, self.node)
         self.at(self.count - 1).next = self.node
-        #self.index_cache = [self.node] * 10
         self.index_cache = self.node
 
     def at(self, index):
@@ -78,7 +77,7 @@ def iterate(cups, ci, rounds):
 
         c_item = c_item.next
         if move % indicator == 0:
-            print('.', end='')
+            print('.', end='', flush=True)
 
     return linked
 
