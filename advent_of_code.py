@@ -179,9 +179,9 @@ if __name__ == "__main__":
 
     #day23.play_cups_order(day23.example, 100)
 
-    day23.play_cups_order(day23.data, 10)
-    #tic = time.perf_counter()
-    #day23.play_cups_find(day23.example, 10, 1000000)
-    #toc = time.perf_counter()
-    #print(f"timed: {toc - tic:0.4f} seconds", flush=True)
+    #day23.play_cups_order(day23.data, 100)
+    tic = time.perf_counter()
+    day23.play_cups_find(day23.example, 10000000, 1000000)
+    toc = time.perf_counter()
+    print(f"timed: {toc - tic:0.4f} seconds", flush=True)
 
