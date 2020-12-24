@@ -13,8 +13,10 @@ class CircleList:
     def __init__(self, array):
         self.node = None
         self.count = len(array)
+        self.index = {}
         for x in reversed(array):
             self.node = Node(x, self.node)
+            self.index[x] = self.node
         self.at(self.count - 1).next = self.node
         self.index_cache = self.node
 
@@ -25,13 +27,7 @@ class CircleList:
         return s
 
     def find(self, value):
-        s = self.index_cache
-        for r in range(0, self.count):
-            if s.value == value:
-                self.index_cache = s
-                return s
-            s = s.next
-        return None
+        return self.index[value]
 
 
 def iterate(cups, ci, rounds):
@@ -78,7 +74,7 @@ def iterate(cups, ci, rounds):
         c_item = c_item.next
         if move % indicator == 0:
             print('.', end='', flush=True)
-
+    print("")
     return linked
 
 
@@ -95,10 +91,10 @@ def play_cups_order(input_data, rounds):
 
 def play_cups_find(input_data, rounds, input_len):
     cups = [int(x) for x in input_data]
-    cups += [x for x in range(len(input_data), input_len)]
+    cups += [x for x in range(len(input_data) + 1, input_len + 1)]
     linked = iterate(cups, 0, rounds)
-    at = linked.find(1).next
-    m1 = at.value
-    m2 = at.next.value
+    at = linked.find(1)
+    m1 = at.next.value
+    m2 = at.next.next.value
     print("stars at", m1, m2, m1 * m2)
 
