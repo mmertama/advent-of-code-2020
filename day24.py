@@ -81,16 +81,15 @@ def set_tiles(data):
 def set_tiles_daily(data, days):
     black_tiles = frozenset(get_black_tiles(data))
     for day in range(0, days):
-        flippable_black = []
-        flippable_white = []
+        flippable_black = set()
+        flippable_white = set()
         all_neighbors = set()
         for tile in black_tiles:
             neighbors = get_neighbors(tile)
             black_neighbors = [x for x in neighbors if x in black_tiles]
             black_neighbors_count = len(black_neighbors)
             if black_neighbors_count == 0 or black_neighbors_count > 2:
-                if tile not in flippable_black:
-                    flippable_black.append(tile)
+                flippable_black.add(tile)
             for n in neighbors:
                 all_neighbors.add(n)
         white_neighbors = [x for x in all_neighbors if x not in black_tiles]
@@ -98,11 +97,10 @@ def set_tiles_daily(data, days):
             neighbors = get_neighbors(tile)
             black_neighbors = [x for x in neighbors if x in black_tiles]
             if len(black_neighbors) == 2:
-                if tile not in flippable_white:
-                    flippable_white.append(tile)
+                flippable_white.add(tile)
 
-        non_removed = [p for p in black_tiles if p not in flippable_black]
-        black_tiles = frozenset(flippable_white + non_removed)
+        non_removed = {p for p in black_tiles if p not in flippable_black}
+        black_tiles = frozenset(flippable_white.union(non_removed))
 
     print("Day", days, len(black_tiles))
 
