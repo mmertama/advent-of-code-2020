@@ -21,6 +21,7 @@ import day20
 import day21
 import day22
 import day23
+import day24
 
 import time
 
@@ -170,12 +171,12 @@ if __name__ == "__main__":
 
     #day21.find_safe_food(read_example(day21.example))
     day21.find_safe_food(read_input('data/input21.txt'))
-    '''
+    
     #day22.play_space_cards(read_example(day22.example))
-    #day22.play_space_cards(read_input('data/input22.txt'))
+    day22.play_space_cards(read_input('data/input22.txt'))
 
     #day22.play_space_cards_recursive(read_example(day22.example))
-    #day22.play_space_cards_recursive(read_input('data/input22.txt'))
+    day22.play_space_cards_recursive(read_input('data/input22.txt'))
 
     #day23.play_cups_order(day23.example, 100)
 
@@ -185,4 +186,9 @@ if __name__ == "__main__":
     #toc = time.perf_counter()
     #print(f"timed: {toc - tic:0.4f} seconds", flush=True)
     day23.play_cups_find(day23.data, 10000000, 1000000)
+    '''
+    day24.set_tiles(read_example(day24.example))
+    day24.set_tiles(read_input('data/input24.txt'))
+    #day24.set_tiles_daily(read_example(day24.example), 100)
+    day24.set_tiles_daily(read_input('data/input24.txt'), 100)
 
