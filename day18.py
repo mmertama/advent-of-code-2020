@@ -102,6 +102,5 @@ def calc2(data):
     summa = 0
     for line in data:
         value = parse_add_precedence(line)[0]
-        print(value)
         summa += value
     print("sum is", summa)
